@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class CalculoIVA {
 
+    public CalculoIVA() {}
+
     public ReporteIvaDTO calcularIVA(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario) {
         ReporteIvaDTO reporte = new ReporteIvaDTO();
         for (Vendedor vendedor : listaVendedores.values()) {
