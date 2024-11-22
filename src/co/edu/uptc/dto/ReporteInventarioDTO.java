@@ -4,10 +4,10 @@ public class ReporteInventarioDTO {
 
 	private int totalProductos;
 	private double precioBase;
-	private long totalPrecioVenta;
-	private long totalImpuesto;
+	private double totalPrecioVenta;
+	private double totalImpuesto;
 	private int totalComisiones;
-	private long totalGanancias;
+	private double totalGanancias;
 
 	public ReporteInventarioDTO() {}
 
@@ -27,19 +27,19 @@ public class ReporteInventarioDTO {
 		this.precioBase = precioBase;
 	}
 
-	public long getTotalPrecioVenta() {
+	public double getTotalPrecioVenta() {
 		return totalPrecioVenta;
 	}
 
-	public void setTotalPrecioVenta(long totalPrecioVenta) {
+	public void setTotalPrecioVenta(double totalPrecioVenta) {
 		this.totalPrecioVenta = totalPrecioVenta;
 	}
 
-	public long getTotalImpuesto() {
+	public double getTotalImpuesto() {
 		return totalImpuesto;
 	}
 
-	public void setTotalImpuesto(long totalImpuesto) {
+	public void setTotalImpuesto(double totalImpuesto) {
 		this.totalImpuesto = totalImpuesto;
 	}
 
@@ -51,11 +51,11 @@ public class ReporteInventarioDTO {
 		this.totalComisiones = totalComisiones;
 	}
 
-	public long getTotalGanancias() {
+	public double getTotalGanancias() {
 		return totalGanancias;
 	}
 
-	public void setTotalGanancias(long totalGanancias) {
+	public void setTotalGanancias(double totalGanancias) {
 		this.totalGanancias = totalGanancias;
 	}
 }

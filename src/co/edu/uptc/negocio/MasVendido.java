@@ -5,7 +5,6 @@ import co.edu.uptc.modelo.Inventario;
 import co.edu.uptc.modelo.Vendedor;
 import co.edu.uptc.modelo.Venta;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class MasVendido {

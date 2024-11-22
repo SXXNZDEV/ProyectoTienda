@@ -18,33 +18,36 @@ public class CalculoVendedor {
         return basePrice;
     }
 
-    public long calcularPrecioVenta(List<Inventario> inventario) {
-        long salesPrice = 0;
+    public double calcularPrecioVenta(List<Inventario> inventario) {
+        double salesPrice = 0;
         for (Inventario celular : inventario) {
-            if (celular.getPrecioBase() > 600000) {
-                salesPrice += (long) (celular.getCantidad() * celular.getPrecioBase() + (celular.getCantidad() * celular.getPrecioBase() * 0.19));
+            double precio =  calcularGanancia(celular.getPrecioBase());
+            if (precio > 600000) {
+                salesPrice += celular.getCantidad() * precio + (1 + (celular.getCantidad() * precio * 0.19));
             } else {
-                salesPrice += (long) (celular.getCantidad() + (celular.getPrecioBase() * 0.05));
+                salesPrice += celular.getCantidad() * precio + (1 + (celular.getCantidad() * precio * 0.05));
             }
         }
         return salesPrice;
     }
 
-    public long calcularIVAMayor(List<Inventario> inventario) {
-        long worth = 0;
+    public double calcularIVAMayor(List<Inventario> inventario) {
+        double worth = 0;
         for (Inventario celular : inventario) {
-            if (celular.getPrecioBase() > 600000) {
-                worth += (long) (celular.getCantidad() * celular.getPrecioBase() * 0.19);
+            double precio = calcularGanancia(celular.getPrecioBase());
+            if (precio > 600000) {
+                worth += precio * celular.getCantidad() * 0.19;
             }
         }
         return worth;
     }
 
-    public long calcularIVAMenor(List<Inventario> inventario) {
-        long worth = 0;
+    public double calcularIVAMenor(List<Inventario> inventario) {
+        double worth = 0;
         for (Inventario celular : inventario) {
-            if (celular.getPrecioBase() <= 600000 && celular.getPrecioBase() > 0) {
-                worth += (long) (celular.getCantidad() * celular.getPrecioBase() * 0.05);
+            double precio = calcularGanancia(celular.getPrecioBase());
+            if (precio <= 600000) {
+                worth += precio * celular.getCantidad() * 0.05;
             }
         }
         return worth;
@@ -66,8 +69,8 @@ public class CalculoVendedor {
         return totalCellPhones;
     }
 
-    public long calculateProfits(List<Inventario> inventario) {
-        return (calcularPrecioBase(inventario) - calculateCommissions(inventario));
+    public double calculateProfits(List<Inventario> inventario) {
+        return precioGanancias(inventario) - calcularPrecioBase(inventario) - calculateCommissions(inventario);
     }
 
     public ReporteVendedorDTO crearReporteVendedor(Vendedor vendedor) throws IllegalArgumentException {
@@ -82,5 +85,18 @@ public class CalculoVendedor {
         reporte.setTipoCuentaBanc(vendedor.getTipoCuentaBanc());
         reporte.setCelularesVendidos(calculo.calcularCellVendidos(vendedor.getListaVentas()));
         return reporte;
+    }
+
+    public double calcularGanancia(double precio) {
+        return precio * (1 + ((double) 25 /100));
+    }
+
+    public double precioGanancias(List<Inventario> inventario) {
+        double ganancias = 0.0;
+        for (Inventario celular : inventario) {
+            double precio = calcularGanancia(celular.getPrecioBase());
+            ganancias += precio * celular.getCantidad();
+        }
+        return ganancias;
     }
 }

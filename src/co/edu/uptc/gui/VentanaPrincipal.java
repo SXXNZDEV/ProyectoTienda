@@ -21,7 +21,7 @@ public class VentanaPrincipal extends JFrame {
 	public VentanaPrincipal(){
 		setTitle("Mi Tienda");
 		setSize(1100,600);
-		
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		Evento evento= new Evento(this);
 		info= new PanelInventario(evento);
 		infoVentas= new PanelVentas(evento);
@@ -33,9 +33,9 @@ public class VentanaPrincipal extends JFrame {
 		add(persona,BorderLayout.CENTER);
 		add(infoVentas,BorderLayout.EAST);
 		add(botones,BorderLayout.SOUTH);
-		
 		nuevaTienda= new Tienda();
 	}
+
 	public static void main(String[] args) {
 		VentanaPrincipal nueva= new VentanaPrincipal();
 		nueva.setVisible(true);
@@ -51,7 +51,6 @@ public class VentanaPrincipal extends JFrame {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
-
 	
 	public void cargarInfoVendedor() {
 		//TODO implementar logica para separa información
@@ -79,17 +78,19 @@ public class VentanaPrincipal extends JFrame {
 		DialogoLista nuevo= new DialogoLista();
 		NumberFormat format = NumberFormat.getCurrencyInstance();
 		format.setMinimumFractionDigits(0);
-		StringBuilder sb = new StringBuilder(String.format("%-20s | %-20s | %-20s | %-20s | %-20s | %-20s\n", "Total Celulares", "Total Precio Base", "Total Precio Ventas ", "Total impuestos", "Total Comisiones", "Total ganancias\n"));
+		StringBuilder sb = new StringBuilder(String.format("%-20s | %-20s | %-20s | %-20s | %-20s | %-20s\n", "Total Celulares", "Total Precio Base", "Total Precio Ventas ", "Total impuestos", "Total Comisiones", "Total ganancias"));
 		sb.append(String.format("%-20d | %-20s | %-20s | %-20s | %-20s | %-20s", nuevoReporte.getTotalProductos(), format.format(nuevoReporte.getPrecioBase()), format.format(nuevoReporte.getTotalPrecioVenta()), format.format(nuevoReporte.getTotalImpuesto()), format.format(nuevoReporte.getTotalComisiones()), format.format(nuevoReporte.getTotalGanancias())));
-		nuevo.agregrarTexto(sb.toString());
-		nuevo.setVisible(true);
+		nuevo.tablaInventario(nuevoReporte);
+		nuevo.mostrar(sb.toString());
+		/*nuevo.agregrarTexto(sb.toString());
+		nuevo.setVisible(true);*/
 	}
 
 	public void generarReporteVentas() throws IllegalArgumentException {
 		DialogoLista nuevo = new DialogoLista();
 		try {
 			String txt = nuevaTienda.generarReporteVentas();
-			nuevo.agregrarTexto(txt);
+			//nuevo.agregrarTexto(txt);
 			nuevo.setVisible(true);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
@@ -100,7 +101,7 @@ public class VentanaPrincipal extends JFrame {
 		DialogoLista nuevo = new DialogoLista();
 		try {
 			String txt = nuevaTienda.generarReporteMasVendidos();
-			nuevo.agregrarTexto(txt);
+			//nuevo.agregrarTexto(txt);
 			nuevo.setVisible(true);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
@@ -111,7 +112,7 @@ public class VentanaPrincipal extends JFrame {
 		DialogoLista nuevo = new DialogoLista();
 		try {
 			String txt = nuevaTienda.reportIVA();
-			nuevo.agregrarTexto(txt);
+			//nuevo.agregrarTexto(txt);
 			nuevo.setVisible(true);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());

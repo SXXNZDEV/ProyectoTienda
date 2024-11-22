@@ -26,44 +26,50 @@ public class Tienda {
 
     // Metodos para cargar informacion
     public void cargarInventario(String infoInventario) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-        // TODO desarrollar metodo que cargue el invetario
-        // lista de invetarios listaInvetario
-        if (infoInventario.isEmpty()) {
+        StringBuilder exception = new StringBuilder();
+        if (infoInventario.isBlank()) {
             throw new IllegalArgumentException("No hay datos en el campo de Inventario");
         }
-        String[] arregloLineas;
-        arregloLineas = separarLineas(infoInventario);
+        String[] arregloLineas = separarLineas(infoInventario);
+        ;
         for (String datosInv : arregloLineas) {
-            Inventario nuevo = crearInventario(datosInv);
-            if (validarExistenciaCelular(nuevo.getCodigo())) {
-                aumentarCantidadCelular(nuevo);
-                continue;
+            try {
+                if (datosInv.isBlank()) {
+                    continue;
+                }
+                Inventario nuevo = crearInventario(datosInv);
+                if (validarExistenciaCelular(nuevo.getCodigo())) {
+                    aumentarCantidadCelular(nuevo);
+                    continue;
+                }
+                listaInvetario.add(nuevo);
+            } catch (IllegalArgumentException e) {
+                exception.append(e.getMessage());
             }
-            listaInvetario.add(nuevo);
+        }
+        if (!exception.toString().isEmpty()) {
+            throw new IllegalArgumentException(exception.toString());
         }
     }
 
-    public void cargarVendedor(String infoVendedor) throws NumberFormatException, ArrayIndexOutOfBoundsException, IllegalArgumentException {
+    public void cargarVendedor(String infoVendedor) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
         StringBuilder exception = new StringBuilder();
-        if (infoVendedor.isEmpty()) {
+        if (infoVendedor.isBlank()) {
             throw new IllegalArgumentException("No hay datos en el campo de Vendedor");
         }
         String[] arregloLineas = separarLineas(infoVendedor);
         for (String datosVendedor : arregloLineas) {
             Vendedor vendedor = crearVendedor(datosVendedor);
-            if (!validarTipoID(vendedor.getTipoCuentaBanc())) {
-                exception.append("El tipo de cuenta bancaria no es válido, por lo cual no se agrego a la lista.\n");
-                cod--;
+            if (datosVendedor.isBlank()) {
                 continue;
             }
-            if (vendedor.getTipoCuentaBanc().equalsIgnoreCase("Corriente") || vendedor.getTipoCuentaBanc().equalsIgnoreCase("Ahorros")) {
+            if (!(vendedor.getTipoCuentaBanc().equalsIgnoreCase("Corriente") || vendedor.getTipoCuentaBanc().equalsIgnoreCase("Ahorros"))) {
                 exception.append("El vendedor con ID ").append(vendedor.getNumeroID()).append(" no es válido, por lo cual no se agrego a la lista.\n");
                 cod--;
-            }
-            if (validarExistenciaVendedor(vendedor.getNumeroID())) {
+            } else if (validarExistenciaVendedor(vendedor.getNumeroID())) {
                 listaVendedores.put(vendedor.getCodigo(), vendedor);
             } else {
-                exception.append("El vendedor con ID ").append(vendedor.getNumeroID()).append(" ya existe en la lista, por lo cual no se agrego a la lista.\n");
+                exception.append("El vendedor con ID ").append(vendedor.getNumeroID()).append(" ya existe, por lo cual no se agrego a la lista.\n");
                 cod--;
             }
         }
@@ -73,7 +79,7 @@ public class Tienda {
     }
 
     public void cargarVentas(String infoVentas) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-        if (!validarExistenciaDatos()) {
+        if (infoVentas.isBlank()) {
             throw new IllegalArgumentException("No hay datos en el campo de Ventas");
         }
         String[] arreglo = separarLineas(infoVentas);
@@ -140,7 +146,7 @@ public class Tienda {
         return true;
     }
 
-    public boolean validarExistenciaDatos() throws IllegalArgumentException {
+    public void validarExistenciaDatos() throws IllegalArgumentException {
         if (validarInventarioExisten() && validarVendedoresExisten()) {
             throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
         } else if (validarInventarioExisten()) {
@@ -148,10 +154,9 @@ public class Tienda {
         } else if (validarVendedoresExisten()) {
             throw new IllegalArgumentException("No hay Vendedores registrados");
         }
-        return true;
     }
 
-    public boolean validarNumPositivos(int num) {
+    public boolean validarNumPositivos(int num) throws IllegalArgumentException {
         return num > 0;
     }
 
@@ -162,14 +167,14 @@ public class Tienda {
     public boolean verificarEspaciosBlancos(String[] arreglo) throws IllegalArgumentException {
         for (String dato : arreglo) {
             if (dato.isBlank()) {
-                throw new IllegalArgumentException("Verifique los datos ingresados, hay datos en blanco...");
+                return false;
             }
         }
         return true;
     }
 
     //Creacion de ventas, Vendedores e Inventario
-    public Venta crearVenta(String datosVenta) throws NumberFormatException{
+    public Venta crearVenta(String datosVenta) throws NumberFormatException {
         String[] arreglo = datosVenta.split(";");
         Venta venta = new Venta();
         if (verificarEspaciosBlancos(arreglo)) {
@@ -189,21 +194,30 @@ public class Tienda {
     public Vendedor crearVendedor(String datos) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
         String[] arreglo = datos.split(";");
         Vendedor vendedor = new Vendedor();
-        if (verificarEspaciosBlancos(arreglo)) {
+        StringBuilder exception = new StringBuilder();
+        if (!verificarEspaciosBlancos(arreglo)) {
+            throw new IllegalArgumentException("Hay espacios en blanco en la linea '" + datos + "' por lo que no sera registrada\n");
+        }
+        try {
             vendedor.setNombres(arreglo[0].trim());
             vendedor.setApellidos(arreglo[1].trim());
-            try {
-                vendedor.setTelefono(Long.parseLong(arreglo[2].trim()));
-                vendedor.setNumeroID(Long.parseLong(arreglo[3].trim()));
-                vendedor.setNumeroCuentaBanc(Long.parseLong(arreglo[5].trim()));
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException("Revise el formato del telefono o el numero de ID: ");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new ArrayIndexOutOfBoundsException("Los datos ingresados son invalidos, verifiquelos...");
-            }
+            vendedor.setTelefono(Long.parseLong(arreglo[2].trim()));
+            vendedor.setNumeroID(Long.parseLong(arreglo[3].trim()));
             vendedor.setTipoID(arreglo[4].trim());
+            vendedor.setNumeroCuentaBanc(Long.parseLong(arreglo[5].trim()));
             vendedor.setTipoCuentaBanc(arreglo[6].trim());
             vendedor.setCodigo(codSellers());
+            if (!validarTipoID(vendedor.getTipoID())) {
+                exception.append("El tipo identificación no es válido, no se agrego a la lista este vendedor.\n");
+                cod--;
+            }
+        } catch (NumberFormatException e) {
+            exception.append("El numero de telefono :").append(vendedor.getTelefono()).append(" o el numero de cuenta ").append(vendedor.getNumeroCuentaBanc()).append(" o el ID ").append(vendedor.getNumeroID()).append(" no es valido, por lo cual no se agrego a la lista.\n");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            exception.append("Faltan datos en la linea: '").append(datos).append("' por lo que no esta no sera registrada\n");
+        }
+        if (!exception.toString().isEmpty()) {
+            throw new IllegalArgumentException(exception.toString());
         }
         return vendedor;
     }
@@ -211,20 +225,28 @@ public class Tienda {
     public Inventario crearInventario(String linea) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         String[] arreglo = linea.split(";");
         Inventario nuevo = new Inventario();
-        if (verificarEspaciosBlancos(arreglo)) {
+        StringBuilder exception = new StringBuilder();
+        if (!verificarEspaciosBlancos(arreglo)) {
+            throw new IllegalArgumentException("Hay espacios en blanco en la linea " + linea + " por lo que no sera registrada\n");
+        }
+        try {
             nuevo.setMarca(arreglo[0]);
             nuevo.setLinea(arreglo[1]);
             nuevo.setCodigo(arreglo[2]);
-            try {
-                if (validarNumPositivos(Integer.parseInt(arreglo[3].trim())) && validarNumPositivos(Integer.parseInt(arreglo[4].trim()))) {
-                    nuevo.setPrecioBase(Integer.parseInt(arreglo[3].trim()));
-                    nuevo.aumentarCantidad(Integer.parseInt(arreglo[4].trim()));
-                }
-            } catch (NumberFormatException e) {
-                throw new NumberFormatException("El !!precio base y la cantidad deben ser un numero");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new ArrayIndexOutOfBoundsException("Los datos ingresados son invalidos, verifiquelos...");
+            if (!validarNumPositivos(Integer.parseInt(arreglo[3].trim())) || !validarNumPositivos(Integer.parseInt(arreglo[4].trim()))) {
+                throw new IllegalArgumentException("El precio base y la cantidad deben ser un numero positivo, verifique en la linea: '" + linea + "'\n"    );
             }
+            nuevo.setPrecioBase(Integer.parseInt(arreglo[3].trim()));
+            nuevo.aumentarCantidad(Integer.parseInt(arreglo[4].trim()));
+
+        } catch (NumberFormatException e) {
+            exception.append("El precio base").append(arreglo[3].trim()).append(" y la cantidad ").append(arreglo[4].trim()).append(" deben ser un numero, por lo cual este no sera registrado\n");
+        } catch (ArrayIndexOutOfBoundsException e) {
+            exception.append("Faltan datos en la linea: '").append(linea).append("' por lo que no esta no sera registrada\n");
+        }
+
+        if (!exception.toString().isEmpty()) {
+            throw new IllegalArgumentException(exception.toString());
         }
         return nuevo;
     }
@@ -260,9 +282,7 @@ public class Tienda {
     }
 
     public String generarReporteVentas() throws IllegalArgumentException {
-        if (validarVendedoresExisten() && validarInventarioExisten()) {
-            throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
-        }
+        validarExistenciaDatos();
         CalculoVendedor calculo = new CalculoVendedor();
         NumberFormat format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
