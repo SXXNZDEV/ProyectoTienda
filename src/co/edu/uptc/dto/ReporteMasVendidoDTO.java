@@ -4,13 +4,13 @@ public class ReporteMasVendidoDTO {
     private String Marca;
     private String Linea;
     private String codigo;
-    private int ventas;
+    private double ventasMarca;
 
-    public ReporteMasVendidoDTO(String marca, String linea,String codigo, int ventas) {
+    public ReporteMasVendidoDTO(String marca, String linea,String codigo, double ventasMarca) {
         this.Marca = marca;
         this.Linea = linea;
         this.codigo = codigo;
-        this.ventas = ventas;
+        this.ventasMarca = ventasMarca;
     }
 
     public ReporteMasVendidoDTO() {}
@@ -31,12 +31,12 @@ public class ReporteMasVendidoDTO {
         Linea = linea;
     }
 
-    public int getVentas() {
-        return ventas;
+    public double getVentasMarca() {
+        return ventasMarca;
     }
 
-    public void setVentas(int ventas) {
-        this.ventas += ventas;
+    public void setVentasMarca(double ventasMarca) {
+        this.ventasMarca += ventasMarca;
     }
 
     public String getCodigo() {

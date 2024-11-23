@@ -3,12 +3,15 @@ package co.edu.uptc.negocio;
 import co.edu.uptc.dto.ReporteVendedorDTO;
 import co.edu.uptc.modelo.Inventario;
 import co.edu.uptc.modelo.Vendedor;
+import co.edu.uptc.modelo.Venta;
 
 import java.util.List;
+import java.util.Map;
 
 public class CalculoVendedor {
 
-    public CalculoVendedor() {}
+    public CalculoVendedor() {
+    }
 
     public long calcularPrecioBase(List<Inventario> inventario) {
         long basePrice = 0;
@@ -21,7 +24,7 @@ public class CalculoVendedor {
     public double calcularPrecioVenta(List<Inventario> inventario) {
         double salesPrice = 0;
         for (Inventario celular : inventario) {
-            double precio =  calcularGanancia(celular.getPrecioBase());
+            double precio = calcularGanancia(celular.getPrecioBase());
             if (precio > 600000) {
                 salesPrice += celular.getCantidad() * precio + (1 + (celular.getCantidad() * precio * 0.19));
             } else {
@@ -53,12 +56,32 @@ public class CalculoVendedor {
         return worth;
     }
 
-    public int calculateCommissions(List<Inventario> inventario) {
-        int commission = 0;
+    public double calculateCommissions(List<Inventario> inventario) {
+        double commission = 0;
         for (Inventario celular : inventario) {
-            commission += (int) (celular.getCantidad() * celular.getPrecioBase() * 0.05);
+            commission += celular.getCantidad() * celular.getPrecioBase() * 0.05;
         }
         return commission;
+    }
+
+    public double calcularComision(Map<String, Vendedor> vendedor, List<Inventario> inventario) {
+        double commission = 0;
+        for (Vendedor vend : vendedor.values()) {
+            for (Venta venta : vend.getListaVentas()) {
+                commission += venta.getCantidad() * buscarPrecioBase(venta.getCodCelular(), inventario) * 0.05;
+            }
+        }
+        return commission;
+    }
+
+    public double buscarPrecioBase(String codigo, List<Inventario> inventario) {
+        for (Inventario celular : inventario) {
+            if (celular.getCodigo().equalsIgnoreCase(codigo)) {
+                return celular.getPrecioBase();
+            }
+        }
+        return 0;
+
     }
 
     public int calculateTotalCell(List<Inventario> inventario) {
@@ -88,7 +111,7 @@ public class CalculoVendedor {
     }
 
     public double calcularGanancia(double precio) {
-        return precio * (1 + ((double) 25 /100));
+        return precio * (1 + ((double) 25 / 100));
     }
 
     public double precioGanancias(List<Inventario> inventario) {

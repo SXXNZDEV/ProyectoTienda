@@ -6,7 +6,7 @@ public class ReporteInventarioDTO {
 	private double precioBase;
 	private double totalPrecioVenta;
 	private double totalImpuesto;
-	private int totalComisiones;
+	private double totalComisiones;
 	private double totalGanancias;
 
 	public ReporteInventarioDTO() {}
@@ -43,11 +43,11 @@ public class ReporteInventarioDTO {
 		this.totalImpuesto = totalImpuesto;
 	}
 
-	public int getTotalComisiones() {
+	public double getTotalComisiones() {
 		return totalComisiones;
 	}
 
-	public void setTotalComisiones(int totalComisiones) {
+	public void setTotalComisiones(double totalComisiones) {
 		this.totalComisiones = totalComisiones;
 	}
 

@@ -22,18 +22,35 @@ public class MasVendido {
                 // Verificamos si ya existe un registro para esta línea
                 String codCelular = venta.getCodCelular();
                 if (reporteMap.containsKey(codCelular)) {
-                    // Si existe, acumulamos las ventas
+
                     ReporteMasVendidoDTO reporteExistente = reporteMap.get(codCelular);
-                    reporteExistente.setVentas(venta.getCantidad());
+                    reporteExistente.setVentasMarca((long)(calcularPrecioVenta(venta.getCodCelular(), venta.getCantidad(), listaInventario)));
                 } else {
-                    // Si no existe, creamos un nuevo registro
-                    ReporteMasVendidoDTO nuevoReporte = new ReporteMasVendidoDTO(buscarMarca(codCelular, listaInventario), buscarLinea(codCelular, listaInventario), codCelular, venta.getCantidad());
+                    ReporteMasVendidoDTO nuevoReporte = new ReporteMasVendidoDTO(buscarMarca(codCelular, listaInventario), buscarLinea(codCelular, listaInventario), codCelular, calcularPrecioVenta(venta.getCodCelular(), venta.getCantidad(), listaInventario));
                     reporteMap.put(codCelular, nuevoReporte);
                 }
             }
         }
         // Encontrar el reporte con la mayor cantidad de ventas
-        return Collections.max(reporteMap.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentas));
+        return Collections.max(reporteMap.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentasMarca));
+    }
+
+    public double calcularPrecioVenta(String cod, double cantidad, List<Inventario> inventario) {
+        double precio = buscarPrecioBase(cod, inventario) * (1 + ((double) 25 / 100));
+        if (precio > 600000) {
+            return precio * (1.19) * cantidad;
+        } else {
+            return precio * (1.05) * cantidad;
+        }
+    }
+
+    public long buscarPrecioBase (String codigo, List<Inventario> inventario) {
+        for (Inventario invent : inventario) {
+            if (invent.getCodigo().equalsIgnoreCase(codigo)) {
+                return invent.getPrecioBase();
+            }
+        }
+        return 0;
     }
 
     public ReporteMasVendidoDTO marcaMasVendida(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario) {
@@ -45,17 +62,17 @@ public class MasVendido {
                 String marca = buscarMarca(venta.getCodCelular(), listaInventario);
                 if (reporte.containsKey(marca)) {
                     ReporteMasVendidoDTO marcaMasVendida = reporte.get(marca);
-                    marcaMasVendida.setVentas(venta.getCantidad());
+                    marcaMasVendida.setVentasMarca(calcularPrecioVenta(venta.getCodCelular(), venta.getCantidad(), listaInventario));
                 } else {
                     ReporteMasVendidoDTO nuevoReporte = new ReporteMasVendidoDTO();
                     nuevoReporte.setMarca(marca);
-                    nuevoReporte.setVentas(venta.getCantidad());
+                    nuevoReporte.setVentasMarca(calcularPrecioVenta(venta.getCodCelular(), venta.getCantidad(), listaInventario));
                     nuevoReporte.setCodigo(vendedor.getCodigo());
                     reporte.put(marca, nuevoReporte);
                 }
             }
         }
-        return Collections.max(reporte.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentas));
+        return Collections.max(reporte.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentasMarca));
     }
 
     public String buscarMarca(String codigo, ArrayList<Inventario> listaInventario) {

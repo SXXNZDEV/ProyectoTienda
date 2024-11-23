@@ -1,12 +1,15 @@
 package co.edu.uptc.gui;
 
 import java.awt.BorderLayout;
-import java.text.NumberFormat;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+
 import co.edu.uptc.dto.ReporteInventarioDTO;
+import co.edu.uptc.dto.ReporteMasVendidoDTO;
+import co.edu.uptc.dto.ReporteVendedorDTO;
 import co.edu.uptc.negocio.Tienda;
 
 public class VentanaPrincipal extends JFrame {
@@ -47,9 +50,11 @@ public class VentanaPrincipal extends JFrame {
 		String variable=info.obtenerDatos();
 		try {
 			nuevaTienda.cargarInventario(variable);
+			JOptionPane.showMessageDialog(null, "Inventario cargado");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
+
 	}
 	
 	public void cargarInfoVendedor() {
@@ -58,6 +63,7 @@ public class VentanaPrincipal extends JFrame {
 		String vendedor = persona.obtenerDatos();
 		try {
 			nuevaTienda.cargarVendedor(vendedor);
+			JOptionPane.showMessageDialog(null, "Vendedores cargados");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
@@ -67,31 +73,32 @@ public class VentanaPrincipal extends JFrame {
 		String ventas = infoVentas.obtenerDatos();
 		try {
 			nuevaTienda.cargarVentas(ventas);
+			JOptionPane.showMessageDialog(null,"Ventas Cargadas");
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
 	}
 
 	public void generarInformeInventario() {
-		JOptionPane.showMessageDialog(this, "Crear infome de inventario" );
-		ReporteInventarioDTO nuevoReporte= nuevaTienda.calcularTotalInventario();
-		DialogoLista nuevo= new DialogoLista();
-		NumberFormat format = NumberFormat.getCurrencyInstance();
-		format.setMinimumFractionDigits(0);
-		StringBuilder sb = new StringBuilder(String.format("%-20s | %-20s | %-20s | %-20s | %-20s | %-20s\n", "Total Celulares", "Total Precio Base", "Total Precio Ventas ", "Total impuestos", "Total Comisiones", "Total ganancias"));
-		sb.append(String.format("%-20d | %-20s | %-20s | %-20s | %-20s | %-20s", nuevoReporte.getTotalProductos(), format.format(nuevoReporte.getPrecioBase()), format.format(nuevoReporte.getTotalPrecioVenta()), format.format(nuevoReporte.getTotalImpuesto()), format.format(nuevoReporte.getTotalComisiones()), format.format(nuevoReporte.getTotalGanancias())));
-		nuevo.tablaInventario(nuevoReporte);
-		nuevo.mostrar(sb.toString());
-		/*nuevo.agregrarTexto(sb.toString());
-		nuevo.setVisible(true);*/
+		JOptionPane.showMessageDialog(this, "Creando el informe del inventario...");
+		List<ReporteInventarioDTO> reporte;
+		DialogoLista nuevo = new DialogoLista();
+		Object[] titulos = {"#Celulares", "Total Precio Base", "Total Precio Ventas ", "Total impuestos", "Total Comisiones", "Total ganancias"};
+		try {
+			reporte = nuevaTienda.calcularTotalInventario();
+			nuevo.crearTablaInventario(titulos, reporte);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
 	}
 
 	public void generarReporteVentas() throws IllegalArgumentException {
 		DialogoLista nuevo = new DialogoLista();
+		List<ReporteVendedorDTO> reporte;
+		Object[] titulos = {"Tipo #ID", "Nombre", "#Cuenta", "Tipo", "TotalComision", "Total Celulares"};
 		try {
-			String txt = nuevaTienda.generarReporteVentas();
-			//nuevo.agregrarTexto(txt);
-			nuevo.setVisible(true);
+			reporte = nuevaTienda.generarReporteVentas();
+			nuevo.crearTablaVendedor(titulos, reporte);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
@@ -100,9 +107,10 @@ public class VentanaPrincipal extends JFrame {
 	public void generarReporteMasVendidos() throws IllegalArgumentException {
 		DialogoLista nuevo = new DialogoLista();
 		try {
-			String txt = nuevaTienda.generarReporteMasVendidos();
-			//nuevo.agregrarTexto(txt);
-			nuevo.setVisible(true);
+			Object[] titulos = {"Marca +Vendida", "Total Ventas +Marca", "Linea +Vendida", "Total Ventas +Linea"};
+			ReporteMasVendidoDTO linea = nuevaTienda.reporteMasVendidoLinea();
+			ReporteMasVendidoDTO marca = nuevaTienda.reporteMasVendidoMarca();
+			nuevo.crearTablaMasVendidos(titulos, linea, marca);
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}

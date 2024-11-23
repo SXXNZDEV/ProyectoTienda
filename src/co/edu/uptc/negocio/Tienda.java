@@ -18,7 +18,6 @@ public class Tienda {
     private int cod;
 
     public Tienda() {
-        super();
         listaInvetario = new ArrayList<>();
         listaVendedores = new TreeMap<>();
         cod = 1;
@@ -31,7 +30,6 @@ public class Tienda {
             throw new IllegalArgumentException("No hay datos en el campo de Inventario");
         }
         String[] arregloLineas = separarLineas(infoInventario);
-        ;
         for (String datosInv : arregloLineas) {
             try {
                 if (datosInv.isBlank()) {
@@ -86,7 +84,7 @@ public class Tienda {
         StringBuilder sb = new StringBuilder();
         for (String datosVenta : arreglo) {
             Venta venta = crearVenta(datosVenta);
-            if (validarExistenciaCelular(venta.getCodCelular())) {
+            if (!validarExistenciaCelular(venta.getCodCelular())) {
                 sb.append("El celular ").append(venta.getCodCelular()).append(" no existe en la base de datos, por lo cual no sera registrada esta venta \n");
                 continue;
             } else if (listaVendedores.get(venta.getCodVendedor()) == null) {
@@ -206,7 +204,7 @@ public class Tienda {
             vendedor.setTipoID(arreglo[4].trim());
             vendedor.setNumeroCuentaBanc(Long.parseLong(arreglo[5].trim()));
             vendedor.setTipoCuentaBanc(arreglo[6].trim());
-            vendedor.setCodigo(codSellers());
+            vendedor.setCodigo(codVendedor());
             if (!validarTipoID(vendedor.getTipoID())) {
                 exception.append("El tipo identificación no es válido, no se agrego a la lista este vendedor.\n");
                 cod--;
@@ -253,7 +251,7 @@ public class Tienda {
 
 
     // Creador de Codigo unico de Venta (Codigo de vendedor)
-    public String codSellers() {
+    public String codVendedor() {
         if (cod < 10) {
             return "VEN00" + (cod++);
         } else if (cod < 100) {
@@ -268,31 +266,30 @@ public class Tienda {
 
 
     //Metodos encargados de crear los reportes requeridos
-    public ReporteInventarioDTO calcularTotalInventario() {
+    public List<ReporteInventarioDTO> calcularTotalInventario() {
+        List<ReporteInventarioDTO> lista = new ArrayList<>();
         ReporteInventarioDTO reporte = new ReporteInventarioDTO();
         CalculoVendedor calcular = new CalculoVendedor();
         //TODO desarrollar logica de total de inventario
+
         reporte.setTotalProductos(calcular.calculateTotalCell(listaInvetario));
         reporte.setTotalGanancias(calcular.calculateProfits(listaInvetario));
         reporte.setTotalComisiones(calcular.calculateCommissions(listaInvetario));
         reporte.setTotalImpuesto(calcular.calcularIVAMayor(listaInvetario) + calcular.calcularIVAMenor(listaInvetario));
         reporte.setPrecioBase(calcular.calcularPrecioBase(listaInvetario));
         reporte.setTotalPrecioVenta(calcular.calcularPrecioVenta(listaInvetario));
-        return reporte;
+        lista.add(reporte);
+        return lista;
     }
 
-    public String generarReporteVentas() throws IllegalArgumentException {
+    public List<ReporteVendedorDTO> generarReporteVentas() throws IllegalArgumentException {
         validarExistenciaDatos();
+        List<ReporteVendedorDTO> reporte = new ArrayList<>();
         CalculoVendedor calculo = new CalculoVendedor();
-        NumberFormat format = NumberFormat.getCurrencyInstance();
-        format.setMinimumFractionDigits(0);
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-25s | %-20s | %-22s | %-25s | %-22s | %-5s\n", "Tipo y Numero Documento", "Nombre Vendedor", "Total Comision Ventas ", "Numero de cuenta Bancaria", "Tipo cuenta Bancaria", "Celulares vendidos"));
         for (Vendedor vendedor : listaVendedores.values()) {
-            ReporteVendedorDTO reporte = calculo.crearReporteVendedor(vendedor);
-            sb.append(String.format("%-25s | %-20s | %-22s | %-25s | %-22s | %-5s\n", reporte.getTipoID() + " " + reporte.getNumeroID(), reporte.getNombres() + " " + reporte.getApellidos(), format.format(reporte.getComision()), reporte.getNumeroCuentaBanc(), reporte.getTipoCuentaBanc(), reporte.getCelularesVendidos()));
+            reporte.add(calculo.crearReporteVendedor(vendedor));
         }
-        return sb.toString();
+        return reporte;
     }
 
     public String reportIVA() throws IllegalArgumentException {
@@ -312,21 +309,30 @@ public class Tienda {
 
     }
 
-    public String generarReporteMasVendidos() throws IllegalArgumentException {
+    public ReporteMasVendidoDTO reporteMasVendidoLinea() throws IllegalArgumentException {
         if (validarVendedoresExisten() && validarInventarioExisten()) {
             throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
         }
-        MasVendido masVendido = new MasVendido();
-        ReporteMasVendidoDTO linea = masVendido.lineaMasVendida(listaVendedores, listaInvetario);
-        ReporteMasVendidoDTO marca = masVendido.marcaMasVendida(listaVendedores, listaInvetario);
+        MasVendido masVendidos = new MasVendido();
+        ReporteMasVendidoDTO vendido = masVendidos.lineaMasVendida(listaVendedores, listaInvetario);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-40s | %-10s\n", "Concepto", "Valor"));
-        sb.append(String.format("%-40s | %-10s\n", "Marca de Celular más Vendida", marca.getMarca()));
-        sb.append(String.format("%-40s | %-10s\n", "Total ventas marca", marca.getVentas()));
-        sb.append(String.format("%-40s | %-10s\n", "Linea de Celular más Vendida", linea.getLinea()));
-        sb.append(String.format("%-40s | %-10s\n", "Total ventas linea", linea.getVentas()));
-        return sb.toString();
+        return vendido;
+
+        //ReporteMasVendidoDTO marca = masVendido.marcaMasVendida(listaVendedores, listaInvetario);
+        //masVendidos.add(marca);
+
+    }
+
+    public ReporteMasVendidoDTO reporteMasVendidoMarca() throws IllegalArgumentException {
+        if (validarVendedoresExisten() && validarInventarioExisten()) {
+            throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
+        }
+        MasVendido masVendidos = new MasVendido();
+        ReporteMasVendidoDTO vendido = masVendidos.marcaMasVendida(listaVendedores, listaInvetario);
+        long precio = buscarPrecioBase(vendido.getCodigo());
+        vendido.setVentasMarca(precio * vendido.getVentasMarca());
+
+        return vendido;
     }
 
     //Metodo encargado de calcular la comisión del vendedor cuando ingresa la venta
