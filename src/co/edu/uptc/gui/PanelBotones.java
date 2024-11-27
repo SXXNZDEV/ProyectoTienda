@@ -25,12 +25,17 @@ public class PanelBotones extends JPanel {
 		JButton accion5= new JButton(Evento.SALIR);
 		accion5.addActionListener(evento);
 		accion5.setActionCommand(Evento.SALIR);
-		
+
+		JButton accion6 = new JButton(Evento.INGRESAR);
+		accion6.addActionListener(evento);
+		accion6.setActionCommand(Evento.INGRESAR);
+
+		add(accion6);
 		add(accion1);
 		add(accion2);
 		add(accion3);
 		add(accion4);
 		add(accion5);
-		
+
 	}
 }

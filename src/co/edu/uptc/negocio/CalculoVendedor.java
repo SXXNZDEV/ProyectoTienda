@@ -3,10 +3,8 @@ package co.edu.uptc.negocio;
 import co.edu.uptc.dto.ReporteVendedorDTO;
 import co.edu.uptc.modelo.Inventario;
 import co.edu.uptc.modelo.Vendedor;
-import co.edu.uptc.modelo.Venta;
 
 import java.util.List;
-import java.util.Map;
 
 public class CalculoVendedor {
 
@@ -62,26 +60,6 @@ public class CalculoVendedor {
             commission += celular.getCantidad() * celular.getPrecioBase() * 0.05;
         }
         return commission;
-    }
-
-    public double calcularComision(Map<String, Vendedor> vendedor, List<Inventario> inventario) {
-        double commission = 0;
-        for (Vendedor vend : vendedor.values()) {
-            for (Venta venta : vend.getListaVentas()) {
-                commission += venta.getCantidad() * buscarPrecioBase(venta.getCodCelular(), inventario) * 0.05;
-            }
-        }
-        return commission;
-    }
-
-    public double buscarPrecioBase(String codigo, List<Inventario> inventario) {
-        for (Inventario celular : inventario) {
-            if (celular.getCodigo().equalsIgnoreCase(codigo)) {
-                return celular.getPrecioBase();
-            }
-        }
-        return 0;
-
     }
 
     public int calculateTotalCell(List<Inventario> inventario) {

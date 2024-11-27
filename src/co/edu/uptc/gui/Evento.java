@@ -13,42 +13,46 @@ public class Evento implements ActionListener {
 
     public static final String IMPUESTOS = "IMPUESTOS";
 
-    public static final String CARGAR = "Cargar Inverntario";
+    public static final String CARGAR = "Cargar Inventario";
 
-    public static final String CARGAR_PERSONAS = "Cargar Persona";
+    public static final String CARGAR_PERSONAS = "Cargar Vendedor";
 
     public static final String CARGAR_VENTAS = "Cargar Ventas";
 
     public static final String SALIR = "SALIR";
 
+    public static final String INGRESAR = "INGRESAR";
 
-    private VentanaPrincipal ventana;
+    private PanelPantallas panelPantallas;
+    VentanaPrincipal ventanaPrincipal;
 
     public Evento(VentanaPrincipal ventanaPrincipal) {
-        this.ventana = ventanaPrincipal;
+        this.ventanaPrincipal = ventanaPrincipal;
+        panelPantallas = new PanelPantallas(ventanaPrincipal, this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         String evento = e.getActionCommand();
-
-        //TODO reto del dia llamar a los demas metodos
+        ventanaPrincipal = panelPantallas.getVentana();
         if (evento.equals(CARGAR)) {
-            ventana.cargarInfoInventario();
+            ventanaPrincipal.cargarInfoInventario();
         } else if (evento.equals(CARGAR_VENTAS)) {
-            ventana.cargarVentas();
+            ventanaPrincipal.cargarVentas();
         } else if (evento.equals(CARGAR_PERSONAS)) {
-            ventana.cargarInfoVendedor();
+            ventanaPrincipal.cargarInfoVendedor();
         } else if (evento.equals(STOCK)) {
-            ventana.generarInformeInventario();
+            ventanaPrincipal.generarInformeInventario();
         } else if (evento.equals(VENTAS)) {
-            ventana.generarReporteVentas();
+            ventanaPrincipal.generarReporteVentas();
         } else if (evento.equals(MAS_VENDIDO)) {
-            ventana.generarReporteMasVendidos();
+            ventanaPrincipal.generarReporteMasVendidos();
         } else if (evento.equals(IMPUESTOS)) {
-            ventana.generarReporteIVA();
+            ventanaPrincipal.generarReporteIVA();
         } else if (evento.equals(SALIR)) {
-            ventana.salir();
+            ventanaPrincipal.salir();
+        } else if (evento.equals(INGRESAR)) {
+            ventanaPrincipal.pantallaPrincipal();
         }
     }
 

@@ -1,6 +1,7 @@
 package co.edu.uptc.gui;
 
 import co.edu.uptc.dto.ReporteInventarioDTO;
+import co.edu.uptc.dto.ReporteIvaDTO;
 import co.edu.uptc.dto.ReporteMasVendidoDTO;
 import co.edu.uptc.dto.ReporteVendedorDTO;
 
@@ -12,58 +13,13 @@ import java.util.List;
 
 public class DialogoLista extends JDialog {
 
-    private JTextArea textArea;
-    private JScrollPane scrollPane;
-    private JFrame frame;
-    private JPanel panel;
     private DefaultTableModel tabla;
     private NumberFormat format;
 
-    public DialogoLista() {
-        /*frame = new JFrame("Ventana Información");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(800, 500);
-        frame.setLayout(new BorderLayout());
+    public DialogoLista() {}
 
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-
-        textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-
-
-        scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(300, 150));
-        panel.add(scrollPane, BorderLayout.CENTER);
-        frame.add(scrollPane, BorderLayout.CENTER);
-
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-        setLayout(new FlowLayout());
-        txaLista = new JTextArea();
-        scrollPane = new JScrollPane(txaLista);
-        scrollPane.setPreferredSize(new Dimension(300, 150));
-        txaLista.setLocation(50, 10);
-        //poner el set size que se ajuste automaticamente al texto
-        txaLista.setWrapStyleWord(true);
-
-        setSize(1500, 500);
-        add(txaLista);
-         */
-    }
-
-    public void mostrar(String texto) {
-        /*frame.setVisible(true);
-        textArea.append(texto);
-        textArea.append("\n");
-        textArea.setFont(new Font("Arial", Font.PLAIN, 11));
-        textArea.setEditable(false);*/
-    }
-
-    public void crearTablaInventario(Object[] titulos, List<ReporteInventarioDTO> inventario) {
+    public JScrollPane crearTablaInventario(Object[] titulos, List<ReporteInventarioDTO> inventario) {
         tabla = new DefaultTableModel();
-        frame = new JFrame("Tabla Vendedores");
         format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
 
@@ -74,23 +30,16 @@ public class DialogoLista extends JDialog {
         format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
         for (ReporteInventarioDTO cel : inventario) {
-            tabla.addRow(new Object[] {cel.getTotalProductos(), format.format(cel.getPrecioBase()), format.format(cel.getTotalPrecioVenta()), format.format(cel.getTotalImpuesto()), format.format(cel.getTotalComisiones()), format.format(cel.getTotalGanancias())});
+            tabla.addRow(new Object[]{cel.getTotalProductos(), format.format(cel.getPrecioBase()), format.format(cel.getTotalPrecioVenta()), format.format(cel.getTotalImpuesto()), format.format(cel.getTotalComisiones()), format.format(cel.getTotalGanancias())});
         }
 
         JTable table = new JTable(tabla);
-        table.setPreferredScrollableViewportSize(new Dimension(700, table.getRowHeight() * table.getRowCount()));
-        JScrollPane scroll = new JScrollPane(table);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(scroll);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setFont(new Font("Arial", Font.PLAIN, 12));
-        frame.setVisible(true);
+        table.setPreferredScrollableViewportSize(new Dimension(700, 800));
+        return new JScrollPane(table);
     }
 
-    public void crearTablaVendedor(Object[] titulos, List<ReporteVendedorDTO> vendedor) {
+    public JScrollPane crearTablaVendedor(Object[] titulos, List<ReporteVendedorDTO> vendedor) {
         tabla = new DefaultTableModel();
-        frame = new JFrame("Tabla Vendedores");
         format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
 
@@ -104,18 +53,11 @@ public class DialogoLista extends JDialog {
 
         JTable table = new JTable(tabla);
         table.setPreferredScrollableViewportSize(new Dimension(700, table.getRowHeight() * table.getRowCount()));
-        JScrollPane scroll = new JScrollPane(table);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(scroll);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setFont(new Font("Arial", Font.PLAIN, 12));
-        frame.setVisible(true);
+        return new JScrollPane(table);
     }
 
-    public void crearTablaMasVendidos(Object[] titulos, ReporteMasVendidoDTO linea, ReporteMasVendidoDTO marca) {
+    public JScrollPane crearTablaMasVendidos(Object[] titulos, ReporteMasVendidoDTO linea, ReporteMasVendidoDTO marca) {
         tabla = new DefaultTableModel();
-        frame = new JFrame("Tabla Vendedores");
         format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
 
@@ -127,19 +69,23 @@ public class DialogoLista extends JDialog {
 
         JTable table = new JTable(tabla);
         table.setPreferredScrollableViewportSize(new Dimension(700, table.getRowHeight() * table.getRowCount()));
-        JScrollPane scroll = new JScrollPane(table);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.add(scroll);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setFont(new Font("Arial", Font.PLAIN, 12));
-        frame.setVisible(true);
+        return new JScrollPane(table);
     }
 
-    /*public void agregrarTexto(String texto) {
-        txaLista.append(texto);
-        txaLista.append("\n");
-        txaLista.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        txaLista.setEditable(false);
-    }*/
+    public JScrollPane crearTablaIVA(Object[] titulos, ReporteIvaDTO reporte) {
+        tabla = new DefaultTableModel();
+        format = NumberFormat.getCurrencyInstance();
+        format.setMinimumFractionDigits(0);
+        for (Object titulo : titulos) {
+            tabla.addColumn(titulo.toString());
+        }
+
+        tabla.addRow(new Object[] {"5%", format.format(reporte.getTotalBasesGravablesMenor()), format.format(reporte.getIvaMenor())});
+        tabla.addRow(new Object[] {"19%", format.format(reporte.getTotalBasesGravablesMayor()), format.format(reporte.getIvaMayor())});
+        tabla.addRow(new Object[] {"Total", format.format(reporte.getTotalBasesGravablesMenor() + reporte.getTotalBasesGravablesMayor()), format.format(reporte.getIvaMenor() + reporte.getIvaMayor())});
+
+        JTable table = new JTable(tabla);
+        table.setPreferredScrollableViewportSize(new Dimension(500, table.getRowHeight() * table.getRowCount()));
+        return new JScrollPane(table);
+    }
 }

@@ -17,12 +17,16 @@ public class CalculoIVA {
         for (Vendedor vendedor : listaVendedores.values()) {
             for (Venta venta : vendedor.getListaVentas()) {
                 long precioBase = buscarPrecioBase(venta.getCodCelular(), listaInventario);
-                if (precioBase > 600000) {
-                    reporte.setIvaMayor(precioBase * venta.getCantidad() * 0.19);
-                    reporte.setTotalBasesGravablesMayor(precioBase * venta.getCantidad());
+                double precioGanancia = precioBase * 1.25;
+                double precioTotal;
+                if (precioGanancia > 600000) {
+                    precioTotal = precioGanancia * 1.19;
+                    reporte.setIvaMayor(precioTotal * venta.getCantidad() - (venta.getCantidad() * precioGanancia));
+                    reporte.setTotalBasesGravablesMayor(precioGanancia * venta.getCantidad());
                 } else {
-                    reporte.setIvaMenor(precioBase * venta.getCantidad() * 0.05);
-                    reporte.setTotalBasesGravablesMenor(precioBase * venta.getCantidad());
+                    precioTotal = precioGanancia * 1.05;
+                    reporte.setIvaMenor(precioTotal * venta.getCantidad() - (venta.getCantidad() * precioGanancia));
+                    reporte.setTotalBasesGravablesMenor(precioGanancia * venta.getCantidad());
                 }
             }
         }

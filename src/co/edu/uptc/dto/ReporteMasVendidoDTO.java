@@ -1,14 +1,14 @@
 package co.edu.uptc.dto;
 
 public class ReporteMasVendidoDTO {
-    private String Marca;
-    private String Linea;
+    private String marca;
+    private String linea;
     private String codigo;
     private double ventasMarca;
 
     public ReporteMasVendidoDTO(String marca, String linea,String codigo, double ventasMarca) {
-        this.Marca = marca;
-        this.Linea = linea;
+        this.marca = marca;
+        this.linea = linea;
         this.codigo = codigo;
         this.ventasMarca = ventasMarca;
     }
@@ -16,19 +16,19 @@ public class ReporteMasVendidoDTO {
     public ReporteMasVendidoDTO() {}
 
     public String getMarca() {
-        return Marca;
+        return marca;
     }
 
     public void setMarca(String marca) {
-        Marca = marca;
+        this.marca = marca;
     }
 
     public String getLinea() {
-        return Linea;
+        return linea;
     }
 
     public void setLinea(String linea) {
-        Linea = linea;
+        this.linea = linea;
     }
 
     public double getVentasMarca() {

@@ -2,8 +2,8 @@ package co.edu.uptc.dto;
 
 public class ReporteIvaDTO {
     private double ivaMenor;
-    private long totalBasesGravablesMayor;
-    private long totalBasesGravablesMenor;
+    private double totalBasesGravablesMayor;
+    private double totalBasesGravablesMenor;
     private double ivaMayor;
 
     public ReporteIvaDTO(double ivaMenor, double ivaMayor) {
@@ -29,19 +29,19 @@ public class ReporteIvaDTO {
         this.ivaMayor += ivaMayor;
     }
 
-    public long getTotalBasesGravablesMayor() {
+    public double getTotalBasesGravablesMayor() {
         return totalBasesGravablesMayor;
     }
 
-    public void setTotalBasesGravablesMayor(long totalBasesGravablesMayor) {
+    public void setTotalBasesGravablesMayor(double totalBasesGravablesMayor) {
         this.totalBasesGravablesMayor += totalBasesGravablesMayor;
     }
 
-    public long getTotalBasesGravablesMenor() {
+    public double getTotalBasesGravablesMenor() {
         return totalBasesGravablesMenor;
     }
 
-    public void setTotalBasesGravablesMenor(long totalBasesGravablesMenor) {
+    public void setTotalBasesGravablesMenor(double totalBasesGravablesMenor) {
         this.totalBasesGravablesMenor += totalBasesGravablesMenor;
     }
 }
