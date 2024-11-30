@@ -5,30 +5,60 @@ import java.util.List;
 
 public class Vendedor {
 
+	/**
+	 * Nombres del vendedor
+	 */
 	private String nombres;
-	private String apellidos;
-	private long telefono;
-	private long numeroID;
-	private String tipoID;
-	private long numeroCuentaBanc;
-	private String tipoCuentaBanc;
-	private long comision;
-	private String codigo;
-	private int salesCells;
-	private List<Venta> listaVentas;
 
-	public Vendedor(String nombres, String apellidos, long telefono, long numeroID, String tipoID, long numeroCuentaBanc, String tipoCuentaBanc, long comision, String codigo, int salesCells) {
-		this.nombres = nombres;
-		this.apellidos = apellidos;
-		this.telefono = telefono;
-		this.numeroID = numeroID;
-		this.tipoID = tipoID;
-		this.numeroCuentaBanc = numeroCuentaBanc;
-		this.tipoCuentaBanc = tipoCuentaBanc;
-		this.comision = comision;
-		this.codigo = codigo;
-		this.salesCells = salesCells;
-	}
+	/**
+	 * Apellidos Vendedor
+	 */
+	private String apellidos;
+
+	/**
+	 * Telefono del Vendedor
+	 */
+	private long telefono;
+
+	/**
+	 * Numero de Identificacion del Vendedor
+	 */
+	private long numeroID;
+
+	/**
+	 * Tipo de Identificacion del Vendedor
+	 */
+	private String tipoID;
+
+	/**
+	 * Numero de cuenta bancaria del Vendedor
+	 */
+	private long numeroCuentaBanc;
+
+	/**
+	 * Tipo de cuenta bancaria del Vendedor
+	 */
+	private String tipoCuentaBanc;
+
+	/**
+	 * Comision del vendedor
+	 */
+	private long comision;
+
+	/**
+	 * Codigo unico del vendedor
+	 */
+	private String codigo;
+
+	/**
+	 * Cantidad de celulares vendidos
+	 */
+	private int salesCells;
+
+	/**
+	 * Lista de ventas
+	 */
+	private List<Venta> listaVentas;
 
 	public Vendedor() {
 		listaVentas = new ArrayList<>();
@@ -110,6 +140,10 @@ public class Vendedor {
 		return salesCells;
 	}
 
+	/**
+	 * Incrementa la cantidad de celulares vendidos.
+	 * @param salesCells cantidad de celulares vendidos.
+	 */
 	public void setSalesCells(int salesCells) {
 		this.salesCells += salesCells;
 	}

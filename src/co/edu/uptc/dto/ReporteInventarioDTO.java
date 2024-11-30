@@ -2,11 +2,34 @@ package co.edu.uptc.dto;
 
 public class ReporteInventarioDTO {
 
+	/**
+	 * Cantidad de celulares registrados
+	 */
 	private int totalProductos;
+
+	/**
+	 * Precio base total de los celulares
+	 */
 	private double precioBase;
+
+	/**
+	 * Precio total de ventas de los celulares
+	 */
 	private double totalPrecioVenta;
+
+	/**
+	 * Total de impuestos de los celulares
+	 */
 	private double totalImpuesto;
+
+	/**
+	 * Total de comisiones de los celulares
+	 */
 	private double totalComisiones;
+
+	/**
+	 * Total de ganancias de los celulares
+	 */
 	private double totalGanancias;
 
 	public ReporteInventarioDTO() {}

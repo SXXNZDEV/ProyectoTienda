@@ -9,10 +9,18 @@ import java.util.*;
 
 public class MasVendido {
 
-    public MasVendido() {
-    }
+    /**
+     * Constructor de la clase MasVendido
+     */
+    public MasVendido() {}
 
-    public ReporteMasVendidoDTO lineaMasVendida(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario) {
+    /**
+     * Busca la linea de celulares que mas ventas tiene.
+     * @param listaVendedores mapa de vendedores.
+     * @param listaInventario liste de inventario.
+     * @return reporte de la linea de celulares mas vendidos.
+     */
+    public ReporteMasVendidoDTO buscarLineaMasVendida(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario) {
         // Mapa para almacenar los datos acumulados por código de celular
         Map<String, ReporteMasVendidoDTO> reporteMap = new HashMap<>();
 
@@ -22,7 +30,6 @@ public class MasVendido {
                 // Verificamos si ya existe un registro para esta línea
                 String codCelular = venta.getCodCelular();
                 if (reporteMap.containsKey(codCelular)) {
-
                     ReporteMasVendidoDTO reporteExistente = reporteMap.get(codCelular);
                     reporteExistente.setVentasMarca((long)(calcularPrecioVenta(venta.getCodCelular(), venta.getCantidad(), listaInventario)));
                 } else {
@@ -35,6 +42,13 @@ public class MasVendido {
         return Collections.max(reporteMap.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentasMarca));
     }
 
+    /**
+     * Calcula el precio de venta de un celular.
+     * @param cod codigo del celular.
+     * @param cantidad cantidad de celulares.
+     * @param inventario lista de inventario.
+     * @return precio de venta del celular.
+     */
     public double calcularPrecioVenta(String cod, double cantidad, List<Inventario> inventario) {
         double precio = buscarPrecioBase(cod, inventario) * (1 + ((double) 25 / 100));
         if (precio > 600000) {
@@ -44,6 +58,12 @@ public class MasVendido {
         }
     }
 
+    /**
+     * Busca el precio base de un celular.
+     * @param codigo codigo del celular.
+     * @param inventario lista de inventario.
+     * @return precio base del celular.
+     */
     public long buscarPrecioBase (String codigo, List<Inventario> inventario) {
         for (Inventario invent : inventario) {
             if (invent.getCodigo().equalsIgnoreCase(codigo)) {
@@ -53,7 +73,13 @@ public class MasVendido {
         return 0;
     }
 
-    public ReporteMasVendidoDTO marcaMasVendida(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario) {
+    /**
+     * Busca la marca de un celular que mas ventas tiene.
+     * @param listaVendedores lista de vendedores.
+     * @param listaInventario lista de inventario
+     * @return reporte de la marca mas vendida.
+     */
+    public ReporteMasVendidoDTO marcaMasVendida(Map<String, Vendedor> listaVendedores, ArrayList<Inventario> listaInventario)  {
         Map<String, ReporteMasVendidoDTO> reporte = new HashMap<>();
 
         for (Vendedor vendedor : listaVendedores.values()) {
@@ -70,11 +96,17 @@ public class MasVendido {
                     nuevoReporte.setCodigo(vendedor.getCodigo());
                     reporte.put(marca, nuevoReporte);
                 }
-            }
+            } 
         }
         return Collections.max(reporte.values(), Comparator.comparing(ReporteMasVendidoDTO::getVentasMarca));
     }
 
+    /**
+     * Busca la marca de un celular.
+     * @param codigo codigo del celular.
+     * @param listaInventario lista de inventario.
+     * @return marca del celular.
+     */
     public String buscarMarca(String codigo, ArrayList<Inventario> listaInventario) {
         for (Inventario celular : listaInventario) {
             if (celular.getCodigo().equals(codigo)) {
@@ -84,6 +116,12 @@ public class MasVendido {
         return "";
     }
 
+    /**
+     * Busca la linea de un celular.
+     * @param codigo codigo del celular.
+     * @param listaInventario lista de inventario.
+     * @return linea del celular.
+     */
     public String buscarLinea(String codigo, ArrayList<Inventario> listaInventario) {
         for (Inventario celular : listaInventario) {
             if (celular.getCodigo().equals(codigo)) {

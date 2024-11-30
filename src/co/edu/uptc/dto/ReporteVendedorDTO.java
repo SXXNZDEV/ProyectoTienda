@@ -1,25 +1,45 @@
 package co.edu.uptc.dto;
 
 public class ReporteVendedorDTO {
+    /**
+     * Tipo de identificacion del vendedor
+     */
     private String tipoID;
-    private long numeroID;
-    private String nombres;
-    private String apellidos;
-    private long comision;
-    private long numeroCuentaBanc;
-    private String tipoCuentaBanc;
-    private int celularesVendidos;
 
-    public ReporteVendedorDTO(String tipoID, long numeroID, String nombres, String apellidos, long comision, long numeroCuentaBanc, String tipoCuentaBanc, int celularesVendidos) {
-        this.tipoID = tipoID;
-        this.numeroID = numeroID;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.comision = comision;
-        this.numeroCuentaBanc = numeroCuentaBanc;
-        this.tipoCuentaBanc = tipoCuentaBanc;
-        this.celularesVendidos = celularesVendidos;
-    }
+    /**
+     * Numero de identificacion del vendedor
+     */
+    private long numeroID;
+
+    /**
+     * Nombres del vendedor
+     */
+    private String nombres;
+
+    /**
+     * Apellidos del vendedor
+     */
+    private String apellidos;
+
+    /**
+     * Comision del vendedor
+     */
+    private long comision;
+
+    /**
+     * Numero de cuenta bancaria del vendedor
+     */
+    private long numeroCuentaBanc;
+
+    /**
+     * Tipo de cuenta bancaria del vendedor
+     */
+    private String tipoCuentaBanc;
+
+    /**
+     * Cantidad de celulares vendidos
+     */
+    private int celularesVendidos;
 
     public ReporteVendedorDTO() {}
 

@@ -13,8 +13,24 @@ import co.edu.uptc.modelo.Venta;
 
 public class Tienda {
 
+    /**
+     * lista de vendedores
+     * Este mapa se encarga de almacenar los vendedores registrados
+     */
     private Map<String, Vendedor> listaVendedores;
+
+
+    /**
+     * Lista de Inventario
+     * Esta lista se encarga de almacenar los celulares registrados
+     */
     private ArrayList<Inventario> listaInvetario;
+
+
+    /**
+     * Codigo de venta
+     * Este codigo se utiliza para generar un codigo unico para cada venta
+     */
     private int cod;
 
     public Tienda() {
@@ -23,25 +39,30 @@ public class Tienda {
         cod = 1;
     }
 
-    // Metodos para cargar informacion
+
+    /**
+     * @param infoInventario cadena de texto con la información de Inventario
+     * @throws ArrayIndexOutOfBoundsException si la cadena de texto no tiene la información necesaria
+     * @throws IllegalArgumentException       Si encuentra alguna anomalía en la información de Inventario
+     */
     public void cargarInventario(String infoInventario) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
         StringBuilder exception = new StringBuilder();
         if (infoInventario.isBlank()) {
             throw new IllegalArgumentException("No hay datos en el campo de Inventario");
         }
         String[] arregloLineas = separarLineas(infoInventario);
-        for (String datosInv : arregloLineas) {
+        for (String linea : arregloLineas) {
             try {
-                if (datosInv.isBlank()) {
+                if (linea.isBlank()) {
                     continue;
                 }
-                Inventario nuevo = crearInventario(datosInv);
+                Inventario nuevo = crearInventario(linea);
                 if (validarExistenciaCelular(nuevo.getCodigo())) {
                     aumentarCantidadCelular(nuevo);
-                    continue;
+                } else {
+                    listaInvetario.add(nuevo);
                 }
-                listaInvetario.add(nuevo);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
                 exception.append(e.getMessage());
             }
         }
@@ -50,6 +71,12 @@ public class Tienda {
         }
     }
 
+
+    /**
+     * @param infoVendedor cadena de texto con la información de Vendedor
+     * @throws ArrayIndexOutOfBoundsException si la cadena de texto no tiene la información necesaria
+     * @throws IllegalArgumentException       Si encuentra alguna anomalía en la información de vendedor
+     */
     public void cargarVendedor(String infoVendedor) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
         StringBuilder exception = new StringBuilder();
         if (infoVendedor.isBlank()) {
@@ -61,13 +88,14 @@ public class Tienda {
                 if (!datosVendedor.isBlank()) {
 
                     Vendedor vendedor = crearVendedor(datosVendedor);
-                    if (!(vendedor.getTipoCuentaBanc().equalsIgnoreCase("Corriente") || vendedor.getTipoCuentaBanc().equalsIgnoreCase("Ahorros"))) {
-                        exception.append("El vendedor no tiene la cuenta debida para registrarlo ");
-                        cod--;
-                    } else if (validarExistenciaVendedor(vendedor.getNumeroID())) {
+                    if (!validarExistenciaVendedor(vendedor.getNumeroID())) {
                         listaVendedores.put(vendedor.getCodigo(), vendedor);
                     } else {
                         exception.append("El vendedor con ID ").append(vendedor.getNumeroID()).append(" ya existe, por lo cual no se agrego a la lista.\n");
+                        cod--;
+                    }
+                    if (!(vendedor.getTipoCuentaBanc().equalsIgnoreCase("Corriente") || vendedor.getTipoCuentaBanc().equalsIgnoreCase("Ahorros"))) {
+                        exception.append("El vendedor no tiene la cuenta debida para registrarlo ");
                         cod--;
                     }
                 }
@@ -80,41 +108,85 @@ public class Tienda {
         }
     }
 
+
+    /**
+     * @param infoVentas cadena de texto con la información de Ventas.
+     * @throws ArrayIndexOutOfBoundsException si la cadena de texto no tiene la información necesaria.
+     * @throws IllegalArgumentException       si encuentra alguna anomalía en la información de Ventas.
+     */
     public void cargarVentas(String infoVentas) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-        if (infoVentas.isBlank()) {
-            throw new IllegalArgumentException("No hay datos en el campo de Ventas");
-        }
+        validarCondiciones(infoVentas);
         String[] arreglo = separarLineas(infoVentas);
         StringBuilder sb = new StringBuilder();
         for (String datosVenta : arreglo) {
             try {
-                Venta venta = crearVenta(datosVenta);
-                if (!datosVenta.isBlank()) {
-                    if (!validarExistenciaCelular(venta.getCodCelular())) {
-                        sb.append("El celular ").append(venta.getCodCelular()).append(" no existe en la base de datos, por lo cual no sera registrada esta venta \n");
-                        continue;
-                    } else if (listaVendedores.get(venta.getCodVendedor()) == null) {
-                        sb.append("El vendedor ").append(venta.getCodVendedor()).append(" no existe en la base de datos, por lo cual no sera registrada esta venta\n");
-                        continue;
-                    }
-                    listaVendedores.get(venta.getCodVendedor()).getListaVentas().add(venta);
-                    listaVendedores.get(venta.getCodVendedor()).setSalesCells(venta.getCantidad());
-                    listaVendedores.get(venta.getCodVendedor()).setComision(calcularComision(buscarPrecioBase(venta.getCodCelular()), venta.getCantidad()));
-                    disminuirCantidadCelular(venta.getCodCelular(), venta.getCantidad());
-                }
+                procesarVentas(datosVenta, sb);
             } catch (ArrayIndexOutOfBoundsException e) {
                 sb.append("Faltan datos en la linea: '").append(datosVenta).append("' por lo que no esta no sera registrada\n");
             }
-
         }
-
         if (!sb.isEmpty()) {
             throw new IllegalArgumentException(sb.toString());
         }
     }
 
-    //Metodos utiles para los metodos de cargar
 
+    /**
+     * @param infoVentas cadena de texto con la información de Ventas.
+     * @throws IllegalArgumentException si informacion de ventas, lista de vendedores o lista de inventario estan vacios genera la excepcion.
+     */
+    public void validarCondiciones(String infoVentas) throws IllegalArgumentException {
+        if (infoVentas.isBlank()) {
+            throw new IllegalArgumentException("No hay datos en el campo de Ventas");
+        }
+        if (listaVendedores.isEmpty()) {
+            throw new IllegalArgumentException("No hay Vendedores registrados");
+        }
+        if (listaInvetario.isEmpty()) {
+            throw new IllegalArgumentException("No hay Inventario registrados");
+        }
+    }
+
+
+    /**
+     * Procesa una venta y la guarda en el sistema.
+     * @param datosVenta cadena de texto con la información de Ventas.
+     * @param errores cadena de caracteres que se encarga de guardar los errores.
+     */
+    public void procesarVentas(String datosVenta, StringBuilder errores) {
+        if (datosVenta.isBlank()) {
+            return;
+        }
+        Venta venta = crearVenta(datosVenta);
+        if (!datosVenta.isBlank()) {
+            if (!validarExistenciaCelular(venta.getCodCelular())) {
+                errores.append("El celular ").append(venta.getCodCelular()).append(" no existe en la base de datos, por lo cual no sera registrada esta venta \n");
+                return;
+            }
+            if (listaVendedores.get(venta.getCodVendedor()) == null) {
+                errores.append("El vendedor ").append(venta.getCodVendedor()).append(" no existe en la base de datos, por lo cual no sera registrada esta venta\n");
+                return;
+            }
+            registrarVentas(venta);
+        }
+    }
+
+    /**
+     * Registra una venta en el sistema.
+     * @param venta venta a registrar.
+     */
+    public void registrarVentas(Venta venta) {
+        Vendedor vendedor = listaVendedores.get(venta.getCodVendedor());
+        vendedor.getListaVentas().add(venta);
+        vendedor.setSalesCells(venta.getCantidad());
+        vendedor.setComision(calcularComision(buscarPrecioBase(venta.getCodCelular()), venta.getCantidad()));
+        disminuirCantidadCelular(venta.getCodCelular(), venta.getCantidad());
+    }
+
+    /**
+     * Aumenta la cantidad de un celular en la base de datos
+     * @param producto producto a aumentar.
+     */
     public void aumentarCantidadCelular(Inventario producto) {
         for (Inventario celular : listaInvetario) {
             if (celular.getCodigo().equals(producto.getCodigo())) {
@@ -124,6 +196,11 @@ public class Tienda {
         }
     }
 
+    /**
+     * Disminuye la cantidad de celulares en la base de datos al realizar una venta.
+     * @param codigo codigo del celular.
+     * @param cantidad cantidad de celulares a disminuir.
+     */
     public void disminuirCantidadCelular(String codigo, int cantidad) {
         for (Inventario celular : listaInvetario) {
             if (celular.getCodigo().equals(codigo)) {
@@ -133,6 +210,11 @@ public class Tienda {
         }
     }
 
+    /**
+     * Valida si existe un celular en la base de datos.
+     * @param codigo codigo del celular.
+     * @return true si existe, false si no existe.
+     */
     public boolean validarExistenciaCelular(String codigo) {
         for (Inventario celular : listaInvetario) {
             if (celular.getCodigo().equals(codigo)) {
@@ -142,37 +224,54 @@ public class Tienda {
         return false;
     }
 
-    public boolean validarTipoID(String ID) {
-        return ID.equalsIgnoreCase("Cedula de Ciudadania") || ID.equalsIgnoreCase("CC") || ID.equalsIgnoreCase("Cedula de Extranjeria") || ID.equalsIgnoreCase("CE") || ID.equalsIgnoreCase("Pasaporte") || ID.equalsIgnoreCase("PA") || ID.equalsIgnoreCase("Carnet Diplomatico") || ID.equalsIgnoreCase("CD");
+    /**
+     * Valida si el tipo de identificacion es valido.
+     * @param tipoID tipo de identificacion.
+     * @return true si es valido, false si no coincide.
+     */
+    public boolean validarTipoID(String tipoID) {
+        return tipoID.equalsIgnoreCase("Cedula de Ciudadania") || tipoID.equalsIgnoreCase("CC") || tipoID.equalsIgnoreCase("Cedula de Extranjeria") || tipoID.equalsIgnoreCase("CE") || tipoID.equalsIgnoreCase("Pasaporte") || tipoID.equalsIgnoreCase("PA") || tipoID.equalsIgnoreCase("Carnet Diplomatico") || tipoID.equalsIgnoreCase("CD");
     }
 
+    /**
+     * Valida si existe un vendedor en la base de datos.
+     * @param numeroID numero de identificación del vendedor.
+     * @return true si existe, false si no existe.
+     */
     public boolean validarExistenciaVendedor(long numeroID) {
         for (Vendedor vendedor : listaVendedores.values()) {
             if (vendedor.getNumeroID() == numeroID) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
-    public void validarExistenciaDatos() throws IllegalArgumentException {
-        if (validarInventarioExisten() && validarVendedoresExisten()) {
-            throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
-        } else if (validarInventarioExisten()) {
-            throw new IllegalArgumentException("No hay Inventario registrados");
-        } else if (validarVendedoresExisten()) {
-            throw new IllegalArgumentException("No hay Vendedores registrados");
-        }
-    }
-
+    /**
+     * Valida si un numero es positivo.
+     * @param num numero a validar.
+     * @return true si es positivo, false si no es positivo.
+     * @throws IllegalArgumentException si el numero no es valido.
+     */
     public boolean validarNumPositivos(int num) throws IllegalArgumentException {
         return num > 0;
     }
 
-    public String[] separarLineas(String cadenaInventarios) {
-        return cadenaInventarios.split("\n");
+    /**
+     * Separa cada linea que contenga salto de línea en un array de cadenas.
+     * @param cadena cadena de texto con la información a separar.
+     * @return retorna un array de cadenas.
+     */
+    public String[] separarLineas(String cadena) {
+        return cadena.split("\n");
     }
 
+    /**
+     * Verifica si todos los datos de un array de cadenas son validos.
+     * @param arreglo array de cadenas.
+     * @return true si todos los datos son validos, false si son validos.
+     * @throws IllegalArgumentException si algun dato no es valido.
+     */
     public boolean verificarEspaciosBlancos(String[] arreglo) throws IllegalArgumentException {
         for (String dato : arreglo) {
             if (dato.isBlank()) {
@@ -182,12 +281,17 @@ public class Tienda {
         return true;
     }
 
-    //Creacion de ventas, Vendedores e Inventario
+    /**
+     * Crea una venta a partir de una cadena de texto.
+     * @param datosVenta cadena de texto con la información de una venta.
+     * @return venta creada.
+     * @throws NumberFormatException si algun dato no es valido.
+     */
     public Venta crearVenta(String datosVenta) throws NumberFormatException {
         String[] arreglo = datosVenta.split(";");
         Venta venta = new Venta();
         if (verificarEspaciosBlancos(arreglo)) {
-            venta.setCodVendedor(arreglo[0]);
+            venta.setCodVendedor(arreglo[0].toUpperCase());
             venta.setCodCelular(arreglo[1]);
             try {
                 if (validarNumPositivos(Integer.parseInt(arreglo[2].trim()))) {
@@ -200,6 +304,13 @@ public class Tienda {
         return venta;
     }
 
+    /**
+     * Crea un vendedor a partir de una cadena de texto.
+     * @param datos cadena de texto con la información de un vendedor.
+     * @return vendedor creado.
+     * @throws ArrayIndexOutOfBoundsException si la cadena de texto no tiene la información necesaria.
+     * @throws IllegalArgumentException si algun dato no es valido.
+     */
     public Vendedor crearVendedor(String datos) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
         String[] arreglo = datos.split(";");
         Vendedor vendedor = new Vendedor();
@@ -210,10 +321,10 @@ public class Tienda {
         try {
             vendedor.setNombres(arreglo[0].trim());
             vendedor.setApellidos(arreglo[1].trim());
-            vendedor.setTelefono(Long.parseLong(arreglo[2].trim()));
-            vendedor.setNumeroID(Long.parseLong(arreglo[3].trim()));
+            vendedor.setTelefono(arreglarFormatoNumero(arreglo[2]));
+            vendedor.setNumeroID(arreglarFormatoNumero(arreglo[3]));
             vendedor.setTipoID(arreglo[4].trim());
-            vendedor.setNumeroCuentaBanc(Long.parseLong(arreglo[5].trim()));
+            vendedor.setNumeroCuentaBanc(arreglarFormatoNumero(arreglo[5]));
             vendedor.setTipoCuentaBanc(arreglo[6].trim());
             vendedor.setCodigo(codVendedor());
             if (!validarTipoID(vendedor.getTipoID())) {
@@ -231,59 +342,68 @@ public class Tienda {
         return vendedor;
     }
 
+    /**
+     * Crea un inventario a partir de una cadena de texto.
+     * @param linea cadena de texto con la información de un inventario.
+     * @return inventario creado.
+     * @throws IllegalArgumentException si algund dato no es valido.
+     * @throws ArrayIndexOutOfBoundsException si la cadena de texto no tiene la información necesaria.
+     */
     public Inventario crearInventario(String linea) throws IllegalArgumentException, ArrayIndexOutOfBoundsException {
         String[] arreglo = linea.split(";");
-        Inventario nuevo = new Inventario();
-        StringBuilder exception = new StringBuilder();
+        if (arreglo.length != 5) {
+            throw new IllegalArgumentException("La linea '" + linea + "' no tieen 5 datos, por lo que no sera registrada\n");
+        }
         if (!verificarEspaciosBlancos(arreglo)) {
-            throw new IllegalArgumentException("Hay espacios en blanco en la linea " + linea + " por lo que no sera registrada\n");
+            throw new IllegalArgumentException("Hay espacios en blanco en la linea '" + linea + "' por lo que no sera registrada\n");
         }
+        Inventario nuevo = new Inventario();
         try {
-            nuevo.setMarca(arreglo[0]);
-            nuevo.setLinea(arreglo[1]);
-            nuevo.setCodigo(arreglo[2]);
-            if (!validarNumPositivos(Integer.parseInt(arreglo[3].trim())) || !validarNumPositivos(Integer.parseInt(arreglo[4].trim()))) {
-                throw new IllegalArgumentException("El precio base y la cantidad deben ser un numero positivo, verifique en la linea: '" + linea + "'\n");
+            nuevo.setMarca(arreglo[0].trim());
+            nuevo.setLinea(arreglo[1].trim());
+            nuevo.setCodigo(arreglo[2].trim());
+            long precioBase = arreglarFormatoNumero(arreglo[3].trim());
+            long cantidad = arreglarFormatoNumero(arreglo[4].trim());
+            if (!validarNumPositivos((int) precioBase) || !validarNumPositivos((int) cantidad)) {
+                throw new IllegalArgumentException("El precio base y la cantidad deben ser un numero positivos en la linea '" + linea + "'.\n");
             }
-            nuevo.setPrecioBase(Integer.parseInt(arreglo[3].trim()));
-            nuevo.aumentarCantidad(Integer.parseInt(arreglo[4].trim()));
-
+            nuevo.setPrecioBase(precioBase);
+            nuevo.aumentarCantidad((int) cantidad);
         } catch (NumberFormatException e) {
-            exception.append("El precio base").append(arreglo[3].trim()).append(" y la cantidad ").append(arreglo[4].trim()).append(" deben ser un numero, por lo cual este no sera registrado\n");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            exception.append("Faltan datos en la linea: '").append(linea).append("' por lo que no esta no sera registrada\n");
-        }
-
-        if (!exception.toString().isEmpty()) {
-            throw new IllegalArgumentException(exception.toString());
+            throw new IllegalArgumentException("El precio base o la cantidad estan mal formados en la linea '" + linea + "'.\n");
         }
         return nuevo;
     }
 
+    /**
+     * Arregla el formato de un numero.
+     * @param numero numero a arreglar.
+     * @return numero arreglado.
+     */
+    public long arreglarFormatoNumero(String numero) {
+        return Long.parseLong(numero.trim().replaceAll(",", "").replaceAll("\\.", "").replaceAll("\\s", ""));
+    }
 
-    // Creador de Codigo unico de Venta (Codigo de vendedor)
+    /**
+     * Creador de codigo unico de venta (codigo de vendedor).
+     * @return codigo unico de venta.
+     */
     public String codVendedor() {
-        if (cod < 10) {
-            return "VEN00" + (cod++);
-        } else if (cod < 100) {
-            return "VEN0" + (cod++);
-        } else if (cod < 1000) {
-            return "VEN" + (cod++);
-        } else if (cod < 10000) {
-            return "VEN" + (cod++);
-        }
-        return "";
+        return cod < 1000 ? String.format("VEN%03d", cod++) : String.format("VEN%04d", cod++);
     }
 
 
-    //Metodos encargados de crear los reportes requeridos
+    /**
+     * Crea el reporte de Inventario
+     * @return lista de reportes de Inventario.
+     */
     public List<ReporteInventarioDTO> calcularTotalInventario() {
         List<ReporteInventarioDTO> lista = new ArrayList<>();
         ReporteInventarioDTO reporte = new ReporteInventarioDTO();
         CalculoVendedor calcular = new CalculoVendedor();
 
-        reporte.setTotalProductos(calcular.calculateTotalCell(listaInvetario));
-        reporte.setTotalGanancias(calcular.calculateProfits(listaInvetario));
+        reporte.setTotalProductos(calcular.calcularTotalCelulares(listaInvetario));
+        reporte.setTotalGanancias(calcular.calcularPrecioGanancia(listaInvetario));
         reporte.setTotalComisiones(calcular.calculateCommissions(listaInvetario));
         reporte.setTotalImpuesto(calcular.calcularIVAMayor(listaInvetario) + calcular.calcularIVAMenor(listaInvetario));
         reporte.setPrecioBase(calcular.calcularPrecioBase(listaInvetario));
@@ -292,8 +412,15 @@ public class Tienda {
         return lista;
     }
 
+    /**
+     * Crea el reporte de Ventas
+     * @return lista de reportes de Ventas.
+     * @throws IllegalArgumentException si no hay vendedores registrados.
+     */
     public List<ReporteVendedorDTO> generarReporteVentas() throws IllegalArgumentException {
-        validarExistenciaDatos();
+        if (listaVendedores.isEmpty()) {
+            throw new IllegalArgumentException("No hay Vendedores registrados");
+        }
         List<ReporteVendedorDTO> reporte = new ArrayList<>();
         CalculoVendedor calculo = new CalculoVendedor();
         for (Vendedor vendedor : listaVendedores.values()) {
@@ -302,42 +429,65 @@ public class Tienda {
         return reporte;
     }
 
+    /**
+     * Crea el reporte de IVA.
+     * @return reporte de IVA.
+     * @throws IllegalArgumentException si no hay vendedores registrados.
+     */
     public ReporteIvaDTO reportIVA() throws IllegalArgumentException {
-        validarExistenciaDatos();
+        if (listaVendedores.isEmpty()) {
+            throw new IllegalArgumentException("No hay Vendedores registrados");
+        }
         CalculoIVA calculo = new CalculoIVA();
         NumberFormat format = NumberFormat.getCurrencyInstance();
         format.setMinimumFractionDigits(0);
-        ReporteIvaDTO reporte = calculo.calcularIVA(listaVendedores, listaInvetario);
-        return reporte;
+        return calculo.calcularIVA(listaVendedores, listaInvetario);
     }
 
+    /**
+     * Crea el reporte de Ventas por Linea de Celulares.
+     * @return reporte de ventas por linea de ceulares
+     * @throws IllegalArgumentException si no hay vendedores o inventario registrados.
+     */
     public ReporteMasVendidoDTO reporteMasVendidoLinea() throws IllegalArgumentException {
-        if (validarVendedoresExisten() || validarInventarioExisten()) {
+        if (listaVendedores.isEmpty() || listaInvetario.isEmpty()) {
             throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
         }
         MasVendido masVendidos = new MasVendido();
-        ReporteMasVendidoDTO vendido = masVendidos.lineaMasVendida(listaVendedores, listaInvetario);
-        return vendido;
+        return masVendidos.buscarLineaMasVendida(listaVendedores, listaInvetario);
     }
 
+    /**
+     * Crea el reporte con la marca mas vendida.
+     * @return reporte de la marca mas vendida.
+     * @throws IllegalArgumentException si no hay vendedores o inventario registrados.
+     */
     public ReporteMasVendidoDTO reporteMasVendidoMarca() throws IllegalArgumentException {
-        if (validarVendedoresExisten() && validarInventarioExisten()) {
+        if (listaVendedores.isEmpty() || listaInvetario.isEmpty()) {
             throw new IllegalArgumentException("No hay Inventario ni Vendedores registrados");
         }
         MasVendido masVendidos = new MasVendido();
         ReporteMasVendidoDTO vendido = masVendidos.marcaMasVendida(listaVendedores, listaInvetario);
         long precio = buscarPrecioBase(vendido.getCodigo());
         vendido.setVentasMarca(precio * vendido.getVentasMarca());
-
         return vendido;
     }
 
-    //Metodo encargado de calcular la comisión del vendedor cuando ingresa la venta
+    /**
+     * Calcula la comision del vendedor cuando ingresa la venta.
+     * @param precioBase precio base del celular.
+     * @param cantidad cantidad de celulares.
+     * @return comision del vendedor.
+     */
     public long calcularComision(long precioBase, int cantidad) {
         return (long) (cantidad * precioBase * 0.05);
     }
 
-    //Metodo encargado de buscar el precio base
+    /**
+     * Busca el precio base de un celular.
+     * @param codigo codigo del celular.
+     * @return precio base del celular.
+     */
     public long buscarPrecioBase(String codigo) {
         for (Inventario celular : listaInvetario) {
             if (celular.getCodigo().equals(codigo)) {
@@ -345,13 +495,5 @@ public class Tienda {
             }
         }
         return 0;
-    }
-
-    public boolean validarVendedoresExisten() {
-        return listaVendedores.isEmpty();
-    }
-
-    public boolean validarInventarioExisten() {
-        return listaInvetario.isEmpty();
     }
 }
