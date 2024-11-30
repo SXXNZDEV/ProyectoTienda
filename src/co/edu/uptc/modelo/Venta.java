@@ -2,17 +2,26 @@ package co.edu.uptc.modelo;
 
 public class Venta {
 
+    /**
+     * Codigo del vendedor
+     */
     private String codVendedor;
+
+    /**
+     * Codigo del celular
+     */
     private String codCelular;
+
+    /**
+     * Cantidad de celulares
+     */
     private int cantidad;
 
-    public Venta(String codSeller, String codCell, int amount) {
-        this.codVendedor = codSeller;
-        this.codCelular = codCell;
-        this.cantidad = amount;
+    /**
+     * Constructor de la clase Venta
+     */
+    public Venta() {
     }
-
-    public Venta() {}
 
     public String getCodVendedor() {
         return codVendedor;
@@ -34,6 +43,10 @@ public class Venta {
         return cantidad;
     }
 
+    /**
+     * Aumenta la cantidad de celulares por un numero dado.
+     * @param cantidad cantidad a aumentar.
+     */
     public void setCantidad(int cantidad) {
         this.cantidad += cantidad;
     }

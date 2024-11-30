@@ -2,10 +2,29 @@ package co.edu.uptc.modelo;
 
 public class Inventario {
 
+	/**
+	 * Marca del celular
+	 */
 	private String marca;
+
+	/**
+	 * Linea del celular
+	 */
 	private String linea;
+
+	/**
+	 * Codigo del celular
+	 */
 	private String codigo;
+
+	/**
+	 * Precio base del celular
+	 */
 	private long precioBase;
+
+	/**
+	 * Cantidad de celulares
+	 */
 	private int cantidad;
 
 	public String getMarca() {
@@ -44,6 +63,10 @@ public class Inventario {
 		return cantidad;
 	}
 
+	/**
+	 * Incrementa la cantidad de celulares por un numero dado.
+	 * @param cantidad cantidad a aumentar.
+	 */
 	public void aumentarCantidad(int cantidad) {
 		this.cantidad += cantidad;
 	}

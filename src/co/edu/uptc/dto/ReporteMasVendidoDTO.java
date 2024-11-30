@@ -1,9 +1,25 @@
 package co.edu.uptc.dto;
 
 public class ReporteMasVendidoDTO {
+
+    /**
+     * Marca del celular
+     */
     private String marca;
+
+    /**
+     * Linea del celular
+     */
     private String linea;
+
+    /**
+     * Codigo del celular
+     */
     private String codigo;
+
+    /**
+     * Ventas de la marca
+     */
     private double ventasMarca;
 
     public ReporteMasVendidoDTO(String marca, String linea,String codigo, double ventasMarca) {
@@ -35,6 +51,10 @@ public class ReporteMasVendidoDTO {
         return ventasMarca;
     }
 
+    /**
+     * Incrementa la cantidad de ventas de la marca.
+     * @param ventasMarca cantidad de ventas de la marca.
+     */
     public void setVentasMarca(double ventasMarca) {
         this.ventasMarca += ventasMarca;
     }

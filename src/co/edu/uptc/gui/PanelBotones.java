@@ -5,6 +5,10 @@ import javax.swing.JPanel;
 
 public class PanelBotones extends JPanel {
 
+	/**
+	 * Constructor de la clase PanelBotones
+	 * @param evento se ejecutará cuando se presióne el botón correspondiente.
+	 */
 	public PanelBotones(Evento evento) {
 		JButton accion1= new JButton(Evento.STOCK);
 		accion1.addActionListener(evento);
@@ -36,6 +40,5 @@ public class PanelBotones extends JPanel {
 		add(accion3);
 		add(accion4);
 		add(accion5);
-
 	}
 }
